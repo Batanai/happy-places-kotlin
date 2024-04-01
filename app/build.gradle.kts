@@ -20,6 +20,10 @@ android {
         }
     }
 
+    buildFeatures {
+        viewBinding = true
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -64,6 +68,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
     implementation (libs.material)
     implementation ("com.karumi:dexter:6.2.3")
+    implementation ("de.hdodenhof:circleimageview:3.1.0")
 
 
     testImplementation(libs.junit)

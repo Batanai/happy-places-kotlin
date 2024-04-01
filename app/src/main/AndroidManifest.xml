@@ -40,6 +40,11 @@
             android:label="ADD HAPPY PLACE"
             android:theme="@style/CustomNoActionBarTheme"/>
         <activity
+            android:name=".activities.HappyPlaceDetailActivity"
+            android:label="HAPPY PLACE DETAIL"
+            android:screenOrientation="portrait"
+            android:theme="@style/CustomNoActionBarTheme"/>
+        <activity
             android:name="im.dino.dbinspector.activities.DbInspectorActivity"
             android:exported="true">
             <!-- Add other activity attributes if needed -->
