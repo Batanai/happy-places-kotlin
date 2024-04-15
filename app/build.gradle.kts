@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlinAndroid)
+    alias(libs.plugins.googleAndroidLibrariesMapsplatformSecretsGradlePlugin)
 }
 
 android {
@@ -69,7 +70,8 @@ dependencies {
     implementation (libs.material)
     implementation ("com.karumi:dexter:6.2.3")
     implementation ("de.hdodenhof:circleimageview:3.1.0")
-
+    implementation(libs.play.services.maps)
+    implementation ("com.google.android.libraries.places:places:3.3.0")
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

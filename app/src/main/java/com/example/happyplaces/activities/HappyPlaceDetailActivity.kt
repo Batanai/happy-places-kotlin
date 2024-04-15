@@ -1,5 +1,6 @@
 package com.example.happyplaces.activities
 
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Button
@@ -27,6 +28,7 @@ class HappyPlaceDetailActivity : AppCompatActivity() {
         val ivPlaceImage = findViewById<ImageView>(R.id.iv_place_image)
         val tvDescription = findViewById<TextView>(R.id.tv_description)
         val tvLocation = findViewById<TextView>(R.id.tv_location)
+        val btnViewOnMap = findViewById<Button>(R.id.btn_view_on_map)
 
         var happyPlaceDetailModel: HappyPlaceModel? = null
 
@@ -49,6 +51,12 @@ class HappyPlaceDetailActivity : AppCompatActivity() {
             ivPlaceImage.setImageURI(Uri.parse(happyPlaceDetailModel.image))
             tvDescription.text = happyPlaceDetailModel.description
             tvLocation.text = happyPlaceDetailModel.location
+        }
+
+        btnViewOnMap.setOnClickListener{
+            val intent = Intent(this, MapActivity::class.java)
+            intent.putExtra(MainActivity.EXTRA_PLACE_DETAILS, happyPlaceDetailModel)
+            startActivity(intent)
         }
     }
 }

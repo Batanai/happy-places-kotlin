@@ -3,13 +3,10 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-    <!-- Camera permission -->
-    <uses-permission android:name="android.permission.CAMERA" />
-
-    <!-- Camera hardware feature -->
-    <uses-feature android:name="android.hardware.camera"
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- Camera permission -->
+    <uses-permission android:name="android.permission.CAMERA" /> <!-- Camera hardware feature -->
+    <uses-feature
+        android:name="android.hardware.camera"
         android:required="false" />
 
     <application
@@ -22,6 +19,25 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:targetApi="31">
+        <activity
+            android:name=".activities.MapActivity"
+            android:label="HAPPY PLACE MAP"
+            android:screenOrientation="portrait"
+            android:theme="@style/CustomNoActionBarTheme" />
+        <!--
+             TODO: Before you run your application, you need a Google Maps API key.
+
+             To get one, follow the directions here:
+
+                https://developers.google.com/maps/documentation/android-sdk/get-api-key
+
+             Once you have your API key (it starts with "AIza"), define a new property in your
+             project's local.properties file (e.g. MAPS_API_KEY=Aiza...), and replace the
+             "YOUR_API_KEY" string in this file with "${MAPS_API_KEY}".
+        -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_api_key" />
 
         <activity
             android:name=".activities.MainActivity"
@@ -36,17 +52,18 @@
         </activity>
         <activity
             android:name=".activities.AddHappyPlaceActivity"
-            android:screenOrientation="portrait"
             android:label="ADD HAPPY PLACE"
-            android:theme="@style/CustomNoActionBarTheme"/>
+            android:screenOrientation="portrait"
+            android:theme="@style/CustomNoActionBarTheme" />
         <activity
             android:name=".activities.HappyPlaceDetailActivity"
             android:label="HAPPY PLACE DETAIL"
             android:screenOrientation="portrait"
-            android:theme="@style/CustomNoActionBarTheme"/>
+            android:theme="@style/CustomNoActionBarTheme" />
         <activity
             android:name="im.dino.dbinspector.activities.DbInspectorActivity"
             android:exported="true">
+
             <!-- Add other activity attributes if needed -->
         </activity>
     </application>
