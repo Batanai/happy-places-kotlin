@@ -72,6 +72,8 @@ dependencies {
     implementation ("de.hdodenhof:circleimageview:3.1.0")
     implementation(libs.play.services.maps)
     implementation ("com.google.android.libraries.places:places:3.3.0")
+    implementation ("com.google.android.gms:play-services-location:18.0.0")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

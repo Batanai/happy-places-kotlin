@@ -1,6 +1,7 @@
 package com.example.happyplaces.activities
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.ActivityNotFoundException
@@ -8,8 +9,11 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.graphics.Bitmap
+import android.location.Location
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Bundle
+import android.os.Looper
 import android.provider.MediaStore
 import android.provider.Settings
 import android.util.Log
@@ -23,6 +27,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.appcompat.widget.Toolbar
 import com.example.happyplaces.R
+import com.example.happyplaces.utils.GetAddressFromLatLng
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
 import com.google.android.libraries.places.api.Places
 import com.google.android.libraries.places.api.model.Place
 import com.google.android.libraries.places.widget.Autocomplete
@@ -62,6 +72,8 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
 
     private var mHappyPlaceDetails: HappyPlaceModel? = null
 
+    private lateinit var mFusedLocationClient: FusedLocationProviderClient
+
     /**
      * This function is auto created by Android when the Activity Class is created.
      */
@@ -80,6 +92,7 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
         val etTitle = findViewById<TextView>(R.id.et_title)
         val etDescription = findViewById<TextView>(R.id.et_description)
         val etLocation = findViewById<TextView>(R.id.et_location)
+        val tvSelectCurrentLocation = findViewById<TextView>(R.id.tv_select_current_location)
 
         setSupportActionBar(toolbarAddPlace) // Use the toolbar to set the action bar.
         supportActionBar?.setDisplayHomeAsUpEnabled(true) // This is to use the home back button.
@@ -88,6 +101,8 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
             // Handle navigation up
             onBackPressed()
         }
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         if(Places.isInitialized()){
             Places.initialize(this@AddHappyPlaceActivity, resources.getString(R.string.google_maps_api_key))
@@ -132,6 +147,63 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
         tvAddImage.setOnClickListener(this)
         btnSave.setOnClickListener(this)
         etLocation.setOnClickListener(this)
+        tvSelectCurrentLocation.setOnClickListener(this)
+    }
+
+
+    private fun isLocationEnabled(): Boolean {
+        val locationManager: LocationManager = getSystemService(Context.LOCATION_SERVICE)
+                as LocationManager
+        return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun requestNewLocationData() {
+
+        val mLocationRequest = LocationRequest()
+        mLocationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        mLocationRequest.interval = 0
+        mLocationRequest.fastestInterval = 0
+        mLocationRequest.numUpdates = 1
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+        mFusedLocationClient.requestLocationUpdates(
+            mLocationRequest, mLocationCallback,
+            Looper.myLooper()
+        )
+    }
+
+    private val mLocationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            val etLocation = findViewById<TextView>(R.id.et_location)
+
+            val mLastLocation: Location = locationResult!!.lastLocation!!
+            mLatitude = -26.0418371
+            Log.e("Current Latitude", "$mLatitude")
+            println("Lat: $mLatitude")
+
+            mLongitude = 27.9695074
+            Log.e("Current Longitude", "$mLongitude")
+            println("Lng: $mLongitude")
+
+            val addressTask =
+                GetAddressFromLatLng(this@AddHappyPlaceActivity, mLatitude, mLongitude)
+
+            addressTask.setAddressListener(object :
+                GetAddressFromLatLng.AddressListener {
+                override fun onAddressFound(address: String?) {
+                    Log.e("Address ::", "" + address)
+                    etLocation.setText(address) // Address is set to the edittext
+                }
+
+                override fun onError() {
+                    Log.e("Get Address ::", "Something is wrong...")
+                }
+            })
+
+            addressTask.getAddress()
+        }
     }
 
     override fun onClick(v: View?) {
@@ -237,6 +309,39 @@ class AddHappyPlaceActivity : AppCompatActivity(), View.OnClickListener {
                     startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE)
                 } catch (e: Exception) {
                     e.printStackTrace()
+                }
+            }
+
+            R.id.tv_select_current_location -> {
+
+                if (!isLocationEnabled()){
+                    Toast.makeText(
+                        this,
+                        "Your location provider is turned off. Please turn it on",
+                        Toast.LENGTH_SHORT
+                    ).show()
+
+                    val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                    startActivity(intent)
+                } else {
+                    Dexter.withContext(this).withPermissions(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
+                    ).withListener(object : MultiplePermissionsListener {
+                        override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
+                            if (report!!.areAllPermissionsGranted()) {
+                                requestNewLocationData()
+                            }
+                        }
+
+                        override fun onPermissionRationaleShouldBeShown(
+                            permissions: MutableList<PermissionRequest>?,
+                            token: PermissionToken?
+                        ) {
+                            showRationalDialogForPermissions()
+                        }
+                    }).onSameThread()
+                        .check()
                 }
             }
         }
